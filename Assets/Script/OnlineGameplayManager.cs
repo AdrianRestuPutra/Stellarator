@@ -8,7 +8,7 @@ public class OnlineGameplayManager : MonoBehaviour {
 	public OnlineMazeGenerator onlineMazeGenerator;
 	public Text timerText;
 	
-	public int timer = 180;
+	public int timer = 30;
 
 	PhotonPlayer[] players;
 	int playerID;
@@ -25,6 +25,7 @@ public class OnlineGameplayManager : MonoBehaviour {
 		
 		foreach(PhotonPlayer player in players) {
 			// INITIALIZE
+			player.SetScore(0);
 			if (player.ID < playerID)
 				playerPosition++;
 		}
@@ -50,7 +51,7 @@ public class OnlineGameplayManager : MonoBehaviour {
 		if (timer <= 0) {
 			if (PhotonNetwork.isMasterClient) {
 				PhotonNetwork.DestroyAll();
-				PhotonNetwork.LoadLevel("Online Room Scene");
+				PhotonNetwork.LoadLevel("Online Result Scene");
 			}
 		}
 		

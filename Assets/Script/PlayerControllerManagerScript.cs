@@ -80,7 +80,7 @@ public class PlayerControllerManagerScript : Photon.MonoBehaviour {
 		jetPack = Input.GetKey(KeyCode.UpArrow);
 		
 		if (Input.GetKeyDown(KeyCode.Z))
-			playerAttribute.DropBomb(transform.position);
+			playerAttribute.DropBomb(transform.position, playerID);
 	}
 	
 	void ApplyPhysics() {
@@ -110,8 +110,12 @@ public class PlayerControllerManagerScript : Photon.MonoBehaviour {
 	}
 	
 	[RPC]
-	public void Dead() {
+	public void Dead(int photonPlayerIdKiller) {
 		if (photonView.isMine) {
+			if (playerID != photonPlayerIdKiller) {
+				PhotonPlayer player = PhotonPlayer.Find(photonPlayerIdKiller);
+				player.AddScore(1);
+			}
 			transform.position = onlineGameplayManager.onlineMazeGenerator
 				.GetSpawnPosition(onlineGameplayManager.playerPosition);
 		}

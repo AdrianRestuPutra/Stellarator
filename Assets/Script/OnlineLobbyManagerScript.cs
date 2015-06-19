@@ -14,7 +14,7 @@ public class OnlineLobbyManagerScript : MonoBehaviour {
 			PhotonNetwork.autoJoinLobby = true;
 			PhotonNetwork.player.name = "Madya121";
 			if (!PhotonNetwork.connected)
-				PhotonNetwork.ConnectToMaster("192.168.1.107", 5055, "Stellarator", "0.1");
+				PhotonNetwork.ConnectToMaster("192.168.1.163", 5055, "Stellarator", "0.1");
 			//PhotonNetwork.ConnectUsingSettings("0.1");
 		}
 		if (PhotonNetwork.insideLobby == true)
