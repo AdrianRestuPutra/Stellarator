@@ -7,10 +7,16 @@ public class BulletScript : MonoBehaviour {
 	public float bulletForceVertical = 0;
 	
 	public int photonPlayerID;
+	
+	private MainCameraGameplayScript mainCameraGameplay;
+
+	void Awake () {
+		mainCameraGameplay = GameObject.Find("Main Camera").GetComponent<MainCameraGameplayScript>();
+	}
 
 	// Use this for initialization
 	void Start () {
-	
+		
 	}
 	
 	// Update is called once per frame
@@ -23,7 +29,8 @@ public class BulletScript : MonoBehaviour {
 	}
 	
 	void OnTriggerEnter2D(Collider2D other) {
-		if (other.tag == "Wall") {		
+		if (other.tag == "Wall") {
+			mainCameraGameplay.Shake();
 			Destroy(gameObject);
 		} else if (other.tag == "Player") {
 			other.gameObject.GetComponent<PlayerControllerManagerScript>().Dead(photonPlayerID);

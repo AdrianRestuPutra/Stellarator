@@ -18,7 +18,7 @@ public class OnlineRoomManagerScript : Photon.MonoBehaviour {
 		chatHash = new ExitGames.Client.Photon.Hashtable();
 	
 		hashtable = new ExitGames.Client.Photon.Hashtable();
-		hashtable.Add("Character ID", 0);
+		hashtable.Add("Character Id", 0);
 		hashtable.Add("Gameplay Score", 0);
 		PhotonNetwork.player.SetCustomProperties(hashtable);
 		

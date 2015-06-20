@@ -5,7 +5,7 @@ public class PlayerControllerManagerScript : Photon.MonoBehaviour {
 
 	public float moveForce = 5, jetPackForce = 5;
 	public PlayerAttributeScript playerAttribute;
-	public int playerID;
+	public int playerID = -1;
 	
 	private Rigidbody2D rgBody2D;
 	// DIRECTION
@@ -15,10 +15,13 @@ public class PlayerControllerManagerScript : Photon.MonoBehaviour {
 	private OnlineGameplayManager onlineGameplayManager;
 	
 	private ExitGames.Client.Photon.Hashtable playerHash;
+	
+	private float cantMoveSecond = 0;
 
 	void Awake () {
 		playerHash = new ExitGames.Client.Photon.Hashtable();
-		playerID = PhotonNetwork.player.ID;
+		if (photonView.isMine)
+			playerID = PhotonNetwork.player.ID;
 		onlineGameplayManager = GameObject.Find("Online Gameplay Manager").GetComponent<OnlineGameplayManager>();
 	}
 
@@ -32,7 +35,13 @@ public class PlayerControllerManagerScript : Photon.MonoBehaviour {
 	// Update is called once per frame
 	void Update () {
 		if (!photonView.isMine) SyncedMovement();
-		else GetInput();
+		else {
+			if (cantMoveSecond <= 0) {
+				cantMoveSecond = 0;
+				GetInput();
+			}
+			cantMoveSecond -= Time.deltaTime;
+		}
 	}
 	
 	// FixedUpdate is called in constant time
@@ -84,6 +93,7 @@ public class PlayerControllerManagerScript : Photon.MonoBehaviour {
 	}
 	
 	void ApplyPhysics() {
+		if (cantMoveSecond > 0) return;
 		if (left) {
 			if (isFacingRight) Flip();
 			rgBody2D.velocity = new Vector2(-moveForce, rgBody2D.velocity.y);
@@ -95,6 +105,19 @@ public class PlayerControllerManagerScript : Photon.MonoBehaviour {
 		if (jetPack) rgBody2D.AddForce(new Vector2(0, jetPackForce));
 		
 		rgBody2D.velocity = new Vector2(rgBody2D.velocity.x, Mathf.Min(rgBody2D.velocity.y, 5));
+	}
+	
+	public void AddBlastForce(Vector3 expPosition, float expRadius, float expForce) {
+		if (!photonView.isMine) return;
+		var dir = (gameObject.transform.position - expPosition);
+		float calc = 1 - (dir.magnitude / expRadius);
+		if (calc <= 0) {
+			calc = 0;
+		}
+		if (calc == 0) return;
+		GetComponent<Rigidbody2D>().velocity = new Vector2(0, 0);
+		GetComponent<Rigidbody2D>().AddForce (dir.normalized * expForce * calc);
+		cantMoveSecond = 0.5f;
 	}
 	
 	[RPC]

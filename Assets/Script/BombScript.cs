@@ -39,6 +39,16 @@ public class BombScript : MonoBehaviour {
 		}
 	}
 	
+	public void AddBlastForce(Vector3 expPosition, float expRadius, float expForce) {
+		var dir = (gameObject.transform.position - expPosition);
+		float calc = 1 - (dir.magnitude / expRadius);
+		if (calc <= 0) {
+			calc = 0;
+		}
+		if (calc == 0) return;
+		GetComponent<Rigidbody2D>().AddForce (dir.normalized * expForce * calc);
+	}
+	
 	void ShootEm() {
 		GameObject left = Instantiate(bullet, transform.position, Quaternion.identity) as GameObject;
 		GameObject right = Instantiate(bullet, transform.position, Quaternion.identity) as GameObject;

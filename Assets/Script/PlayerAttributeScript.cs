@@ -2,6 +2,8 @@
 using System.Collections;
 
 public class PlayerAttributeScript : Photon.MonoBehaviour {
+	
+	public PlayerControllerManagerScript playerControllerManager;
 
 	public GameObject bomb;
 	
@@ -14,26 +16,32 @@ public class PlayerAttributeScript : Photon.MonoBehaviour {
 	private ExitGames.Client.Photon.Hashtable roomHash;
 	private int bombMax = 1;
 	private OnlineMazeGenerator onlineMazeGenerator;
+	
+	private int playerCharacterID = -1;
 
 	// Use this for initialization
 	void Start () {
 		onlineMazeGenerator = GameObject.Find("Online Gameplay Manager").GetComponent<OnlineMazeGenerator>();
+		playerCharacterID = (int)PhotonNetwork.player.customProperties["Character Id"];
 	}
 	
 	// Update is called once per frame
 	void Update () {
 		if (!photonView.isMine) return;
 		
-		if (Input.GetKeyDown(KeyCode.X))
-			Portal(transform.position, onlineMazeGenerator.GetRandomEmptyPlace());
+		if (Input.GetKeyDown(KeyCode.X)) {
+			if (playerCharacterID == 2) Blast(transform.position, playerControllerManager.playerID);
+			if (playerCharacterID == 3) Portal(transform.position, onlineMazeGenerator.GetRandomEmptyPlace());
+			
+		}
 	}
 	
 	[RPC]
-	public void Blast(Vector3 position) {
-		Instantiate(blast, position, Quaternion.identity);
-		
+	public void Blast(Vector3 position, int playerID) {
+		GameObject _blast = Instantiate(blast, position, Quaternion.identity) as GameObject;
+		_blast.SendMessage("BlastOther", playerID);
 		if (photonView.isMine)
-			PhotonNetwork.RPC(photonView, "Blast", PhotonTargets.Others, true, position);
+			PhotonNetwork.RPC(photonView, "Blast", PhotonTargets.Others, true, position, playerID);
 	}
 	
 	[RPC]
