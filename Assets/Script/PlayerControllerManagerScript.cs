@@ -4,6 +4,7 @@ using System.Collections;
 public class PlayerControllerManagerScript : Photon.MonoBehaviour {
 
 	public float moveForce = 5, jetPackForce = 5;
+	public float jetPackMax = 1;
 	public PlayerAttributeScript playerAttribute;
 	public int playerID = -1;
 	
@@ -104,7 +105,7 @@ public class PlayerControllerManagerScript : Photon.MonoBehaviour {
 		
 		if (jetPack) rgBody2D.AddForce(new Vector2(0, jetPackForce));
 		
-		rgBody2D.velocity = new Vector2(rgBody2D.velocity.x, Mathf.Min(rgBody2D.velocity.y, 5));
+		rgBody2D.velocity = new Vector2(rgBody2D.velocity.x, Mathf.Min(rgBody2D.velocity.y, jetPackMax));
 	}
 	
 	public void AddBlastForce(Vector3 expPosition, float expRadius, float expForce) {
@@ -118,6 +119,28 @@ public class PlayerControllerManagerScript : Photon.MonoBehaviour {
 		GetComponent<Rigidbody2D>().velocity = new Vector2(0, 0);
 		GetComponent<Rigidbody2D>().AddForce (dir.normalized * expForce * calc);
 		cantMoveSecond = 0.5f;
+	}
+	
+	void OnTriggerEnter2D(Collider2D other) {	
+		if (!photonView.isMine) return;
+		if (other.gameObject.tag.Equals("Ice")) {
+			if (other.gameObject.GetComponent<IceEffectScript>().playerOwnerID != playerID) {
+				moveForce /= 1.5f;
+				jetPackForce /= 2f;
+				rgBody2D.gravityScale /= 2f;
+			}
+		}
+	}
+	
+	void OnTriggerExit2D(Collider2D other) {
+		if (!photonView.isMine) return;
+		if (other.gameObject.tag.Equals("Ice")) {
+			if (other.gameObject.GetComponent<IceEffectScript>().playerOwnerID != playerID) {
+				moveForce *= 1.5f;
+				jetPackForce *= 2f;
+				rgBody2D.gravityScale *= 2f;
+			}
+		}
 	}
 	
 	[RPC]
@@ -135,12 +158,14 @@ public class PlayerControllerManagerScript : Photon.MonoBehaviour {
 	[RPC]
 	public void Dead(int photonPlayerIdKiller) {
 		if (photonView.isMine) {
-			if (playerID != photonPlayerIdKiller) {
-				PhotonPlayer player = PhotonPlayer.Find(photonPlayerIdKiller);
-				player.AddScore(1);
+			if (playerAttribute.isInvulnerable == false) {
+				if (playerID != photonPlayerIdKiller) {
+					PhotonPlayer player = PhotonPlayer.Find(photonPlayerIdKiller);
+					player.AddScore(1);
+				}
+				transform.position = onlineGameplayManager.onlineMazeGenerator
+					.GetSpawnPosition(onlineGameplayManager.playerPosition);
 			}
-			transform.position = onlineGameplayManager.onlineMazeGenerator
-				.GetSpawnPosition(onlineGameplayManager.playerPosition);
 		}
 	}
 }

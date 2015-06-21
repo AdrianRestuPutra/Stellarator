@@ -17,10 +17,11 @@ public class OnlineRoomManagerScript : Photon.MonoBehaviour {
 	
 		chatHash = new ExitGames.Client.Photon.Hashtable();
 	
-		hashtable = new ExitGames.Client.Photon.Hashtable();
-		hashtable.Add("Character Id", 0);
-		hashtable.Add("Gameplay Score", 0);
-		PhotonNetwork.player.SetCustomProperties(hashtable);
+		hashtable = PhotonNetwork.player.customProperties;
+		if (hashtable.ContainsKey("Character Id") == false) {
+			hashtable.Add("Character Id", 0);
+			PhotonNetwork.player.SetCustomProperties(hashtable);
+		}
 		
 		PhotonNetwork.OnEventCall += this.OnEventReceived;
 		
@@ -51,7 +52,7 @@ public class OnlineRoomManagerScript : Photon.MonoBehaviour {
 			PhotonNetwork.LeaveRoom();
 		}
 		
-		if (PhotonNetwork.isMasterClient && Input.GetKeyDown(KeyCode.Return)) {
+		if (PhotonNetwork.isMasterClient && Input.GetKeyDown(KeyCode.Return) && PhotonNetwork.room.playerCount > 1) {
 			PhotonPlayer[] players = PhotonNetwork.playerList;
 			foreach(PhotonPlayer player in players) 
 				player.SetScore(0);
@@ -65,8 +66,7 @@ public class OnlineRoomManagerScript : Photon.MonoBehaviour {
 			characterId = (int)PhotonNetwork.player.customProperties["Character Id"];
 		
 		characterId = ((characterId + number) + 4) % 4;
-		hashtable.Clear();
-		hashtable.Add("Character Id", characterId);
+		hashtable["Character Id"] = characterId;
 		PhotonNetwork.SetPlayerCustomProperties(hashtable);
 	}
 	

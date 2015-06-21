@@ -7,6 +7,8 @@ public class OnlineLobbyManagerScript : MonoBehaviour {
 	public GameObject loading;
 	public Text roomText;
 	public Text totalRoom, totalPlayer;
+	
+	private ExitGames.Client.Photon.Hashtable hashtable;
 
 	// Use this for initialization
 	void Start () {
@@ -44,11 +46,17 @@ public class OnlineLobbyManagerScript : MonoBehaviour {
 		if (roomText.text.Trim().Equals(string.Empty) == false) {
 			RoomOptions option = new RoomOptions();
 			option.maxPlayers = 4;
+			hashtable = new ExitGames.Client.Photon.Hashtable();
+			hashtable.Add("Character Id", 0);
+			PhotonNetwork.player.SetCustomProperties(hashtable);
 			PhotonNetwork.CreateRoom(roomText.text);
 		}
 	}
 	
 	public void AutoJoin () {
+		hashtable = new ExitGames.Client.Photon.Hashtable();
+		hashtable.Add("Character Id", 0);
+		PhotonNetwork.player.SetCustomProperties(hashtable);
 		PhotonNetwork.JoinRandomRoom();
 	}
 	

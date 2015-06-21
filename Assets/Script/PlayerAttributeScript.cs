@@ -11,6 +11,9 @@ public class PlayerAttributeScript : Photon.MonoBehaviour {
 	public GameObject blast;
 	public GameObject portalIn;
 	public GameObject portalOut;
+	public GameObject ice;
+	
+	public bool isInvulnerable = false;
 	
 	private bool gameOver = false;
 	private ExitGames.Client.Photon.Hashtable roomHash;
@@ -30,10 +33,39 @@ public class PlayerAttributeScript : Photon.MonoBehaviour {
 		if (!photonView.isMine) return;
 		
 		if (Input.GetKeyDown(KeyCode.X)) {
+			if (playerCharacterID == 0) GoBig();
+			if (playerCharacterID == 1) Ice (transform.position, playerControllerManager.playerID);
 			if (playerCharacterID == 2) Blast(transform.position, playerControllerManager.playerID);
 			if (playerCharacterID == 3) Portal(transform.position, onlineMazeGenerator.GetRandomEmptyPlace());
 			
 		}
+	}
+	
+	[RPC]
+	public void Ice(Vector3 position, int playerID) {
+		GameObject _ice = Instantiate(ice, new Vector3(1000, 1000), Quaternion.identity) as GameObject;
+		_ice.SendMessage("SetPosition", position);
+		_ice.SendMessage("SetPlayerID", playerID);
+		
+		if (photonView.isMine)
+			PhotonNetwork.RPC(photonView, "Ice", PhotonTargets.Others, true, position, playerID);
+	}
+	
+	[RPC]
+	public void GoBig() {
+		isInvulnerable = true;
+		GetComponent<Animator>().SetTrigger("Go Big");
+		
+		if (photonView.isMine)
+			PhotonNetwork.RPC(photonView, "GoBig", PhotonTargets.Others, true);
+	}
+	
+	[RPC]
+	public void GoSmall() {
+		isInvulnerable = false;
+		
+		if (photonView.isMine)
+			PhotonNetwork.RPC(photonView, "GoSmall", PhotonTargets.Others, true);
 	}
 	
 	[RPC]

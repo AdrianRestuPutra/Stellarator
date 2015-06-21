@@ -203,32 +203,38 @@ public class OnlineMazeGenerator : MonoBehaviour {
 		}
 	}
 	
-	public void SpawnPlayer(int playerNumber) {
+	public void SpawnPlayer(int playerNumber, int characterIdNumber) {
+		string PrefabName = "";
+		if (characterIdNumber == 0) PrefabName = "BIGGUY";
+		else if (characterIdNumber == 1) PrefabName = "SPACEBUNNY";
+		else if (characterIdNumber == 2) PrefabName = "TIMO";
+		else if (characterIdNumber == 3) PrefabName = "ZOCHTA";
+		
 		if (playerNumber == 1) {
 			for(int i=0;i<r;i++) {
 				if (puzzleMap[i, c-1] == 0) {
-					PhotonNetwork.Instantiate("Photon/Player", new Vector3(i * 5, (c - 1) * 5), Quaternion.identity, 0);
+					PhotonNetwork.Instantiate("Photon/" + PrefabName, new Vector3(i * 5, (c - 1) * 5), Quaternion.identity, 0);
 					break;
 				}
 			}
 		} else if (playerNumber == 2) {
 			for(int i=r-1;i>=0;i--) {
 				if (puzzleMap[i, c-1] == 0) {
-					PhotonNetwork.Instantiate("Photon/Player", new Vector3(i * 5, (c - 1) * 5), Quaternion.identity, 0);
+					PhotonNetwork.Instantiate("Photon/" + PrefabName, new Vector3(i * 5, (c - 1) * 5), Quaternion.identity, 0);
 					break;
 				}
 			}
 		} else if (playerNumber == 3) {
 			for(int i=0;i<r;i++) {
 				if (puzzleMap[i, 0] == 0) {
-					PhotonNetwork.Instantiate("Photon/Player", new Vector3(i * 5, 0), Quaternion.identity, 0);
+					PhotonNetwork.Instantiate("Photon/" + PrefabName, new Vector3(i * 5, 0), Quaternion.identity, 0);
 					break;
 				}
 			}
 		} else {
 			for(int i=r-1;i>=0;i--) {
 				if (puzzleMap[i, 0] == 0) {
-					PhotonNetwork.Instantiate("Photon/Player", new Vector3(i * 5, 0), Quaternion.identity, 0);
+					PhotonNetwork.Instantiate("Photon/" + PrefabName, new Vector3(i * 5, 0), Quaternion.identity, 0);
 					break;
 				}
 			}
@@ -284,7 +290,7 @@ public class OnlineMazeGenerator : MonoBehaviour {
 		InitializeMap();
 		StartGenerating();
 		VisualizeMap();
-		SpawnPlayer(onlineGameplayManager.playerPosition);
+		SpawnPlayer(onlineGameplayManager.playerPosition, (int)PhotonNetwork.player.customProperties["Character Id"]);
 	}
 	
 	// Update is called once per frame

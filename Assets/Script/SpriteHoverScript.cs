@@ -3,6 +3,8 @@ using System.Collections;
 
 public class SpriteHoverScript : MonoBehaviour {
 
+	public AudioClip hoverSound, clickSound;
+
 	public Sprite before;
 	public Sprite after;
 	
@@ -14,11 +16,15 @@ public class SpriteHoverScript : MonoBehaviour {
 	
 	private SpriteRenderer spriteRenderer;
 	private float scaleBefore;
+	
+	private AudioSource audioSource;
 
 	// Use this for initialization
 	void Start () {
 		spriteRenderer = GetComponent<SpriteRenderer>();
 		scaleBefore = gameObject.transform.localScale.x;
+		
+		audioSource = GameObject.Find("SFX").GetComponent<AudioSource>();
 	}
 	
 	// Update is called once per frame
@@ -30,6 +36,8 @@ public class SpriteHoverScript : MonoBehaviour {
 		if (useScale)
 			gameObject.transform.localScale = new Vector3(scaleAfter, scaleAfter, scaleAfter);
 		spriteRenderer.sprite = after;
+		
+		if (audioSource) audioSource.PlayOneShot(hoverSound);
 	}
 	
 	void OnMouseExit () {
